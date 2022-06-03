@@ -1,43 +1,23 @@
+//Variables globales
 let contador=0;
 let costoTotal=0;
 let totalEnProductos=0;
+//Arreglo global para almacenar la lista de compras.
+let datos=[];
 let element=document.getElementById("totalPrecio");
 element.innerHTML="Total en precio";
 let txtNombre=document.getElementById("Name");
-// txtNombre.value="Leche descremada";
-// console.log(txtNombre.value);
 let txtNumber=document.getElementById("Number");
-
 let total=document.getElementById("precioTotal");
-// let campos=document.getElementsByClassName("campo");
-// campos[0].value="Leche descremada deslactosada light=Agua";
-// console.log(campos[0].value);
-// console.log(campos);
-
-// for(let i=0; i<campos.length; i++){
-//     campos[i].style.border="red thin solid";
-// }
-
-// let spans=document.getElementsByTagName("span");
-// for(let i=0; i<spans.length; i++){
-//     console.log(spans[i].textContent);
-// }
-
 let tabla=document.getElementById("listaCompras");
 let cuerpoTabla=tabla.getElementsByTagName("tbody");
 
-// cuerpoTabla[0].innerHTML=`<tr>
-// <th scope="row">1</th>
-// <td>Leche descremada</td>
-// <td>3 Lt</td>
-// <td>$ 23.00</td>
-// </tr>`;
 function validarNombre(){
     if (txtNombre.value.length<=3){
         return false;
     }
     return true;
-};
+};//Funcion validar campo Nombre
 function validarCantidad(){
     if (txtNumber.value.length==0){
         return false;
@@ -49,7 +29,7 @@ function validarCantidad(){
         return false;
     }
     return true;
-};
+};//Funcion validar campo Cantidad
 
 let agregar=document.getElementById("btnAgregar");
 
@@ -64,7 +44,7 @@ agregar.addEventListener("click", (event)=>{
         if(!validarCantidad()){
             txtNumber.style.border="red thin solid";
             lista+="<li>Debes escribir una cantidad valido</li>";
-        }
+        }//Alerta
         
         document.getElementById("alertValidacionesTexto").innerHTML=`Los campos deben ser llenados correctamente
         <ul>${lista}</ul>`;
@@ -73,7 +53,7 @@ agregar.addEventListener("click", (event)=>{
         setTimeout(function(){
             document.getElementById("alertValidaciones").style.display="none";
         },
-        5000)
+        5000)//Desaparece la alerta
         return false;
     }
     txtNombre.style.border="";
@@ -89,12 +69,17 @@ agregar.addEventListener("click", (event)=>{
     costoTotal+=(precio*cantidad);
     total.innerHTML=`$ ${costoTotal.toFixed(2)}`;
     localStorage.setItem("precioTotal", costoTotal.toFixed(2));
+    //JSON
+    let elemento=`{"id":${contador},"nombre":"${txtNombre.value}","cantidad":${txtNumber.value},"precio":${precio}}`;
+    datos.push(JSON.parse(elemento));//guarda la cadena
+    localStorage.setItem("elementosTabla", JSON.stringify(datos));
+
     let tmp=`<tr>
     <th scope="row">${contador}</th>
     <td>${txtNombre.value}</td>
     <td>${txtNumber.value}</td>
     <td>$ ${precio}</td>
-    </tr>`
+    </tr>`//Lista de agregados
     cuerpoTabla[0].innerHTML+=tmp;
     txtNombre.value="";
     txtNumber.value="";
@@ -120,5 +105,15 @@ window.addEventListener("load", function(){
         costoTotal= parseFloat(localStorage.getItem("precioTotal"));
         total.innerHTML=costoTotal;
     }
-});
-//agregar.onclick=
+    if(localStorage.getItem("elementosTabla")!=null){
+        datos=JSON.parse(localStorage.getItem("elementosTabla"));
+        datos.forEach(element=>{
+            cuerpoTabla[0].innerHTML+=`<tr>
+            <th scope="row">${element.id}</th>
+            <td>${element.nombre}</td>
+            <td>${element.cantidad}</td>
+            <td>$ ${element.precio}</td>
+            </tr>`;
+        });
+    }
+});//Recarga lo guardado en el localStorage
